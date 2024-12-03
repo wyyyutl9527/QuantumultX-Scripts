@@ -1,0 +1,22 @@
+/**
+ * Quantumult X Rewrite Script: Modify Timestamp
+ * Script to modify the timestamp field in the HTTP request body
+ */
+
+let body = $request.body; // 获取请求体
+if (body) {
+    try {
+        let json = JSON.parse(body); // 尝试解析 JSON 数据
+        let currentTime = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+        if (json.timestamp) {
+            json.timestamp = currentTime - 300; // 修改 timestamp 字段
+        }
+        $done({ body: JSON.stringify(json) }); // 返回修改后的数据
+    } catch (e) {
+        // 如果解析失败，直接返回原始请求体
+        console.log("JSON Parse Error: " + e);
+        $done({});
+    }
+} else {
+    $done({}); // 如果请求体为空，直接返回
+}
