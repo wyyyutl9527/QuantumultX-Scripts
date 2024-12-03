@@ -1,22 +1,23 @@
 /**
- * Quantumult X Rewrite Script: Modify Timestamp
- * Script to modify the timestamp field in the HTTP request body
+ * Quantumult X Script: Modify Response Header Date
+ * Script to subtract 300 seconds (5 minutes) from the Date field in HTTP response headers
  */
 
-let body = $request.body; // 获取请求体
-if (body) {
-    try {
-        let json = JSON.parse(body); // 尝试解析 JSON 数据
-        let currentTime = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
-        if (json.timestamp) {
-            json.timestamp = currentTime - 300; // 修改 timestamp 字段
-        }
-        $done({ body: JSON.stringify(json) }); // 返回修改后的数据
-    } catch (e) {
-        // 如果解析失败，直接返回原始请求体
-        console.log("JSON Parse Error: " + e);
-        $done({});
-    }
-} else {
-    $done({}); // 如果请求体为空，直接返回
+let headers = $response.headers; // 获取响应头
+
+// 检查是否存在 Date 字段
+if (headers['Date']) {
+    let originalDate = headers['Date']; // 原始 Date 值
+    console.log("Original Date: " + originalDate);
+
+    // 将 Date 转换为 JavaScript Date 对象
+    let date = new Date(originalDate);
+    date.setSeconds(date.getSeconds() - 300); // 减去 300 秒
+
+    // 转换回字符串并更新响应头
+    headers['Date'] = date.toUTCString();
+    console.log("Modified Date: " + headers['Date']);
 }
+
+// 返回修改后的响应头
+$done({ headers });
